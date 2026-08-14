@@ -2,10 +2,12 @@ package org.example.productcatalogservice_july2026.controllers;
 
 import org.example.productcatalogservice_july2026.dtos.CategoryDto;
 import org.example.productcatalogservice_july2026.dtos.ProductDto;
+import org.example.productcatalogservice_july2026.models.Category;
 import org.example.productcatalogservice_july2026.models.Product;
 import org.example.productcatalogservice_july2026.services.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,14 +30,34 @@ public class ProductController {
     //GetProductById
     @GetMapping("/products/{id}")
     public ProductDto getProductById(@PathVariable("id") Long productId) {
+        if (productId < 0) {
+           throw new IllegalArgumentException("Please pass productId > 0");
+        }
+
         Product product = productService.getProductById(productId);
-        return from(product);
+        if (product != null) {
+            return from(product);
+        }
+
+        throw new RuntimeException("Product not available");
     }
 
     @PostMapping("/products")
     public ProductDto createProduct(@RequestBody ProductDto productDto) {
         return null;
     }
+
+    @PutMapping("/products/{id}")
+    public ProductDto replaceProduct(@PathVariable Long id, @RequestBody ProductDto productDto) {
+        Product payload = from(productDto);
+        Product output = productService.replaceProduct(id,payload);
+        if (output !=null) {
+            return from(output);
+        }
+
+        throw new RuntimeException("Something went wrong");
+    }
+
 
     private ProductDto from(Product product) {
         ProductDto productDto = new ProductDto();
@@ -53,5 +75,21 @@ public class ProductController {
         }
 
         return productDto;
+    }
+
+    private Product from(ProductDto productDto) {
+        Product product = new Product();
+        product.setId(productDto.getId());
+        product.setName(productDto.getName());
+        product.setPrice(productDto.getPrice());
+        product.setImageUrl(productDto.getImageUrl());
+        product.setDescription(productDto.getDescription());
+        if(productDto.getCategory() != null) {
+            Category category = new Category();
+            category.setName(productDto.getCategory().getName());
+            category.setId(productDto.getCategory().getId());
+            product.setCategory(category);
+        }
+        return product;
     }
 }
