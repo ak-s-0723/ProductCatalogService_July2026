@@ -16,7 +16,7 @@ public class Product extends BaseModel {
     private String description;
     private Double price;
     private String imageUrl;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Category category;
     private Boolean isPrimeSaleEligible;   // This is a need why we created ProductDto
 }
