@@ -41,7 +41,9 @@ public class ProductController {
     @GetMapping("/products/{id}")
     public ProductDto getProductById(@PathVariable("id") Long productId) {
         if (productId < 0) {
-           throw new IllegalArgumentException("Please pass productId > 0");
+           throw new IllegalArgumentException("Wrong Id");
+        } else if (productId == 0) {
+            throw new IllegalArgumentException("Please pass productId > 0");
         }
 
         Product product = productService.getProductById(productId);
