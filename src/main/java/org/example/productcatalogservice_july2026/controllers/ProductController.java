@@ -54,6 +54,17 @@ public class ProductController {
         throw new RuntimeException("Product not available");
     }
 
+
+    @GetMapping("/products/{productId}/users/{userId}")
+    public ProductDto getProductDetailsBasedOnUserRole(@PathVariable Long productId,
+                                                       @PathVariable Long userId) {
+        Product product = productService.getProductDetailsBasedOnUserRole(productId, userId);
+        if(product == null) return null;
+
+        return from(product);
+    }
+
+
     @PostMapping("/products")
     public ProductDto createProduct(@RequestBody ProductDto productDto) {
         Product input = from(productDto);

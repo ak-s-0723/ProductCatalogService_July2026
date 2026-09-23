@@ -1,11 +1,14 @@
 package org.example.productcatalogservice_july2026.services;
 
+import org.example.productcatalogservice_july2026.dtos.UserDto;
 import org.example.productcatalogservice_july2026.models.Product;
 import org.example.productcatalogservice_july2026.models.Status;
 import org.example.productcatalogservice_july2026.repos.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
 import java.util.List;
@@ -17,6 +20,9 @@ public class StorageProductService implements IProductService {
 
     @Autowired
     private ProductRepo productRepo;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Override
     public Product getProductById(Long id) {
@@ -65,5 +71,23 @@ public class StorageProductService implements IProductService {
         }
 
         return false;
+    }
+
+    @Override
+    public Product getProductDetailsBasedOnUserRole(Long productId, Long userId) {
+        Optional<Product> optionalProduct = productRepo.findById(productId);
+        if(optionalProduct.isEmpty()) return null;
+
+        //call user service and get user details using userId
+        ResponseEntity<UserDto> userDtoResponseEntity =
+                restTemplate.getForEntity("http://userservice/users/{userId}", UserDto.class, userId);
+
+        //If we get valid  (not-null) userDto, then we were able to call User service successfully and we should return product details
+        if (userDtoResponseEntity.getBody() !=null) {
+            return optionalProduct.get();
+        }
+
+        return null;
+
     }
 }

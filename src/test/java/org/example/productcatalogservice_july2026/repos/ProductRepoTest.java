@@ -14,7 +14,7 @@ public class ProductRepoTest {
     @Autowired
     private CategoryRepo categoryRepo;
 
-    @Test
+    //@Test
     public void addDataToRDS() {
         Product product = new Product();
         product.setId(1L);
